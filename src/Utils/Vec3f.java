@@ -35,6 +35,14 @@ public class Vec3f
         this.z=z;
     }
 
+    
+    public Vec3f(final Vec3f a,final Vec3f b,final Vec3f c)
+    {
+        this.x=a.x+b.x+c.x;
+        this.y=a.y+b.y+c.y;
+        this.z=a.z+b.z+c.z;
+    }
+    
     /**
      * Constructor by copy
      * @param that vector to be copied in current vector
@@ -259,5 +267,9 @@ public class Vec3f
         this.y=mat[1]*v.x+mat[4]*v.y+mat[7]*v.z;
         this.z=mat[2]*v.x+mat[5]*v.y+mat[8]*v.z;
         return this;
+    }
+    
+    public float dot(final Vec3f v){
+        return this.x*v.x+this.y*v.y+this.z*v.z;
     }
 }
