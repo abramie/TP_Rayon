@@ -5,6 +5,9 @@
  */
 package objets;
 
+import Utils.Rayon;
+import Utils.Vec3f;
+
 /**
  *
  * @author jerem
@@ -13,13 +16,25 @@ public class Plan extends Figures{
 
     @Override
     public boolean intersection(Rayon r, Double resultat) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Vec3f N = this.getNormal();
+        double lambda = -(N.dot(r.getA()))-this.d;
+        lambda = lambda / N.dot(r.getV());
+        
+        if(lambda >0){
+            resultat = lambda;
+            return true;
+        }
+        return false;
     }
     
     private int a,b,c,d;
     
     public Plan(int  a, int b, int c, int d){
         
+    }
+    
+    public Vec3f getNormal(){
+        return new Vec3f(a,b,c);
     }
     
 }
