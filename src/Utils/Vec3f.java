@@ -279,4 +279,9 @@ public class Vec3f
     public float dot(final Vec3f v){
         return this.x*v.x+this.y*v.y+this.z*v.z;
     }
+    
+    @Override
+    public String toString(){
+      return "Il s'agit du point : "+ this.x + "," + this.y + "," + this.z;  
+    }
 }

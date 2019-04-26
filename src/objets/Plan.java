@@ -17,10 +17,11 @@ public class Plan extends Figures{
     @Override
     public boolean intersection(Rayon r, Double resultat) {
         Vec3f N = this.getNormal();
-        double lambda = -(N.dot(r.getA()))-this.d;
+        Double lambda = new Double(-(N.dot(r.getA()))-this.d);
         lambda = lambda / N.dot(r.getV());
         
         if(lambda >0){
+            System.out.println("lambda = " + lambda);
             resultat = lambda;
             return true;
         }

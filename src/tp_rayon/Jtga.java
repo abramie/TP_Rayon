@@ -29,23 +29,24 @@ public class Jtga {
      */
     public static void main(String[] args) {
         
-        short width = 1024;
-        short height = 1024;
+        //j'ai reduit un peu la taille de la grille
+        short width = 60;
+        short height = 60;
         
         ByteBuffer buffer = ByteBuffer.allocate(width*height*3);
         /**Liste des objets */
         List<Figures> obj = new ArrayList<Figures>();
-        Plan p1 = new Plan(2, 5, 4, 8);
+        Plan p1 = new Plan(2, 5, 4, 4);
         p1.cMat = new float[]{0,255,0};
-        Plan p2 = new Plan(2, 2, 1, 8);
+        Plan p2 = new Plan(2, 2, 1, 4);
         p2.cMat = new float[]{255,0,0};
         obj.add(p1);
         obj.add(p2);
         
         /**Liste des sources de lumieres*/
         List<Vec3f> sources = new ArrayList<Vec3f>();
-        sources.add(new Vec3f(3, 3, 5));
-        int distance_grille = 10;
+        sources.add(new Vec3f(3, 3, 2));
+        int distance_grille = 1;
        
         //Tas de variables pour des trucs
         Vec3f O = new Vec3f();
@@ -90,11 +91,13 @@ public class Jtga {
                 /**Pour chaque objet, on verifie si il est sur le chemin du rayon*/
                 for(Figures f : obj){
                    if( f.intersection(primaire, res)){
+                       
                        //Si c'est le premier objet, ou si il est devant l'objet le plus proche precedent
                        //On l'enregistre.
                        if(is && res < la){
                            la = res;
                            proche = f;
+                           
                            
                        }else{
                            is = true;
@@ -105,9 +108,13 @@ public class Jtga {
                    }
                 }
                 //M = A + lambda*v
+                
                 Mmin.setAdd(O,v.scale(la.floatValue()));
+                
                 //Si y a un objet sur le chemin, sinon sa sert à rien de calculer tous sa
                 if( is ) {
+                    System.out.println("ce point de quelque chose est sur le chemin de mes yeux \\o/ (" + Mmin +")");
+                    System.out.println("il est à " + la + " de l'origine");
                     //Foreach sources
                 Double ret = 0.0;
                 boolean b = true;
@@ -127,6 +134,7 @@ public class Jtga {
                             }
                         }
                         if(b){
+                            System.out.println("ce pixel est touché par la lumiere \\o/ (" + x + "," + y +")");
                             //Calculer la contrib de Sj
                             //Quoi que sa veuille dire
                             
