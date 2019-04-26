@@ -23,7 +23,6 @@ public class Plan extends Figures{
         double resultat = 0;
         
         if(lambda >0){
-            System.out.println("lambda = " + lambda);
             resultat = lambda;
             return new Result(resultat, true);
         }
@@ -43,4 +42,8 @@ public class Plan extends Figures{
         return new Vec3f(a,b,c);
     }
     
+    @Override
+    public String toString(){
+        return this.getNormal().toString();
+    }
 }

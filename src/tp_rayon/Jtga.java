@@ -1,6 +1,7 @@
 package tp_rayon;
 
 import Utils.Rayon;
+import Utils.Result;
 import Utils.Vec3f;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
@@ -36,9 +37,9 @@ public class Jtga {
         ByteBuffer buffer = ByteBuffer.allocate(width*height*3);
         /**Liste des objets */
         List<Figures> obj = new ArrayList<Figures>();
-        Plan p1 = new Plan(2, 5, 4, 4);
+        Plan p1 = new Plan(2, 5, 1, 15);
         p1.cMat = new float[]{0,255,0};
-        Plan p2 = new Plan(2, 2, 1, 4);
+        Plan p2 = new Plan(2, 2, 1, 8);
         p2.cMat = new float[]{255,0,0};
         obj.add(p1);
         obj.add(p2);
@@ -46,6 +47,7 @@ public class Jtga {
         /**Liste des sources de lumieres*/
         List<Vec3f> sources = new ArrayList<Vec3f>();
         sources.add(new Vec3f(3, 3, 2));
+       // sources.add(new Vec3f(25, 9, 8));
         int distance_grille = 1;
        
         //Tas de variables pour des trucs
@@ -54,11 +56,11 @@ public class Jtga {
         Rayon lumiere;
         Figures proche = null;
         Vec3f  Mmin = new Vec3f();
-        
+        Result r;
         // For each pixel...
-        for(int y = 0; y < 1024; y++){
-            for(int x = 0; x < 1024; x++){
-                byte blue =0,red=50,green=0;
+        for(int y = 0; y < height; y++){
+            for(int x = 0; x < width; x++){
+                byte blue =0,red=0,green=0;
                 
                 // Compute the index of the current pixel in the buffer
                 int index = 3*((y*width)+x);
@@ -90,8 +92,8 @@ public class Jtga {
                 
                 /**Pour chaque objet, on verifie si il est sur le chemin du rayon*/
                 for(Figures f : obj){
-                   if( f.intersection(primaire).exists()){
-                       
+                   if( (r = f.intersection(primaire)).exists() ){
+                       res = r.getDistance();
                        //Si c'est le premier objet, ou si il est devant l'objet le plus proche precedent
                        //On l'enregistre.
                        if(is && res < la){
@@ -113,8 +115,7 @@ public class Jtga {
                 
                 //Si y a un objet sur le chemin, sinon sa sert à rien de calculer tous sa
                 if( is ) {
-                    System.out.println("ce point de quelque chose est sur le chemin de mes yeux \\o/ (" + Mmin +")");
-                    System.out.println("il est à " + la + " de l'origine");
+                    
                     //Foreach sources
                 boolean b = true;
                 //Pour chaque lumiere
@@ -128,20 +129,20 @@ public class Jtga {
                         for(Figures f : obj){
                             //Si il y a une intersection, et que celle ci est entre
                             //Mmin et f alors la lumiere n'atteint pas le pixel
-                            if(f.intersection(lumiere).exists() && f.intersection(lumiere).getIntersection()< distance_pixel_lumiere){
+                            if((r = f.intersection(lumiere)).exists() && r.getDistance()< distance_pixel_lumiere){
                                 b = false;
                             }
                         }
                         if(b){
-                            System.out.println("ce pixel est touché par la lumiere \\o/ (" + x + "," + y +")");
+                            System.out.println("ce pixel est touché par la lumiere \\o/ (" + x + "," + y +")" + "il appartient à " + proche);
                             //Calculer la contrib de Sj
                             //Quoi que sa veuille dire
                             
                             //J'ai mis des valeurs au pif ici, y a surement un calcul avec de la lumiere et des couleurs.
-                            red = (byte)proche.cMat[0];
+                            red += (byte)proche.cMat[0];
                             // proche.couleur(); // un truc comme sa aussi d'ailleurs
-                            blue = (byte)proche.cMat[1];
-                            green = (byte)proche.cMat[2];
+                            blue += (byte)proche.cMat[1];
+                            green += (byte)proche.cMat[2];
                         }
                     }
 

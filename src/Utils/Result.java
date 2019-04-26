@@ -10,29 +10,25 @@ package Utils;
  * @author Moi
  */
 public class Result {
-    private double intersection;
+    private double distance;
     private boolean exists;
     
     public Result(double intersection, boolean exists){
-        this.intersection = intersection;
+        this.distance = intersection;
         this.exists = exists;
     }
 
-    public double getIntersection() {
-        return intersection;
+    public double getDistance() {
+        return distance;
     }
 
-    public void setIntersection(double intersection) {
-        this.intersection = intersection;
-    }
+   
 
     public boolean exists() {
         return exists;
     }
 
-    public void setExists(boolean exists) {
-        this.exists = exists;
-    }
+   
     
     
 }
