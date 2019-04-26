@@ -15,6 +15,6 @@ public abstract class Figures {
     
     abstract public boolean intersection(Rayon r, Double resultat);
     
-    protected float[] cMat = new float[3];
+    public float[] cMat = new float[3];
     
 }

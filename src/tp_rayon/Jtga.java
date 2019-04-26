@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import objets.Figures;
+import objets.Plan;
 
 /**
  *
@@ -32,19 +33,31 @@ public class Jtga {
         short height = 1024;
         
         ByteBuffer buffer = ByteBuffer.allocate(width*height*3);
+        /**Liste des objets */
         List<Figures> obj = new ArrayList<Figures>();
+        Plan p1 = new Plan(2, 5, 4, 8);
+        p1.cMat = new float[]{0,255,0};
+        Plan p2 = new Plan(2, 2, 1, 8);
+        p2.cMat = new float[]{255,0,0};
+        obj.add(p1);
+        obj.add(p2);
+        
+        /**Liste des sources de lumieres*/
         List<Vec3f> sources = new ArrayList<Vec3f>();
+        sources.add(new Vec3f(3, 3, 5));
         int distance_grille = 10;
+       
+        //Tas de variables pour des trucs
         Vec3f O = new Vec3f();
         Rayon primaire;
         Rayon lumiere;
-        Figures proche;
-        Vec3f Mmin = null;
-        byte blue =0,red=0,green=0;
+        Figures proche = null;
+        Vec3f  Mmin = new Vec3f();
+        
         // For each pixel...
         for(int y = 0; y < 1024; y++){
             for(int x = 0; x < 1024; x++){
-                
+                byte blue =0,red=50,green=0;
                 
                 // Compute the index of the current pixel in the buffer
                 int index = 3*((y*width)+x);
@@ -61,7 +74,8 @@ public class Jtga {
                 
                 //Construire le rayon entre O et le pixel
                 //le pixel est x,y, et la distance de la grille
-                primaire = new Rayon(O,new Vec3f(O, new Vec3f(x,y,distance_grille)));
+                Vec3f v = new Vec3f(x,y,distance_grille);
+                primaire = new Rayon(O,new Vec3f(O,v ));
                 
                 
                 //Foreach obj
@@ -90,7 +104,8 @@ public class Jtga {
                        }
                    }
                 }
-                Mmin = new Vec3f(x,y,la.intValue());
+                //M = A + lambda*v
+                Mmin.setAdd(O,v.scale(la.floatValue()));
                 //Si y a un objet sur le chemin, sinon sa sert à rien de calculer tous sa
                 if( is ) {
                     //Foreach sources
@@ -101,13 +116,13 @@ public class Jtga {
                         b = true;
                         //Rayon du point d'intersection à la lumiere
                         lumiere = new Rayon(Mmin,new Vec3f(Mmin,l));
+                        //On calcule la distance entre le pixel et la source de la lumiere
+                        double distance_pixel_lumiere = Math.sqrt(Math.pow(Mmin.x-l.x, 2)+Math.pow(Mmin.y-l.y, 2)+Math.pow(Mmin.z-l.z, 2));
                         //On verifie si un objet oculte la source
                         for(Figures f : obj){
                             //Si il y a une intersection, et que celle ci est entre
                             //Mmin et f alors la lumiere n'atteint pas le pixel
-                            //Y a un calcul à faire pour voir si c'est sur le chamin 
-                            // le ret< l.z est probablement pas bon
-                            if(f.intersection(lumiere, ret) && ret< l.z){
+                            if(f.intersection(lumiere, ret) && ret< distance_pixel_lumiere){
                                 b = false;
                             }
                         }
@@ -116,10 +131,10 @@ public class Jtga {
                             //Quoi que sa veuille dire
                             
                             //J'ai mis des valeurs au pif ici, y a surement un calcul avec de la lumiere et des couleurs.
-                            red += 10;
+                            red = (byte)proche.cMat[0];
                             // proche.couleur(); // un truc comme sa aussi d'ailleurs
-                            blue += 10;
-                            green += 10;
+                            blue = (byte)proche.cMat[1];
+                            green = (byte)proche.cMat[2];
                         }
                     }
 
