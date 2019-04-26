@@ -6,6 +6,7 @@
 package objets;
 
 import Utils.Rayon;
+import Utils.Result;
 import Utils.Vec3f;
 import static java.lang.Double.min;
 
@@ -19,9 +20,10 @@ public class Sphere extends Figures{
     private Vec3f C;
     
     @Override
-    public boolean intersection(Rayon r, Double resultat) {
+    public Result intersection(Rayon r) {
         Vec3f A = r.getA();
         Vec3f V = r.getV();
+        double resultat = 0;
         
         float a = V.normalize().dot(V.normalize());
         
@@ -35,18 +37,18 @@ public class Sphere extends Figures{
         
         if (x1>0 && x2>0){
             resultat = min(x1,x2);
-            return true;
+            return new Result(resultat, true);
         }
         else if (x1>0){
             resultat = x1;
-            return true;
+            return new Result(resultat, true);
         }
         else if (x2>0){
             resultat = x2;
-            return true;
+            return new Result(resultat, true);
         }
         else{
-            return false;
+            return new Result(resultat, false);
         }
     }
     

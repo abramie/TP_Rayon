@@ -6,6 +6,7 @@
 package objets;
 
 import Utils.Rayon;
+import Utils.Result;
 
 /**
  *
@@ -13,7 +14,7 @@ import Utils.Rayon;
  */
 public abstract class Figures {
     
-    abstract public boolean intersection(Rayon r, Double resultat);
+    abstract public Result intersection(Rayon r);
     
     public float[] cMat = new float[3];
     

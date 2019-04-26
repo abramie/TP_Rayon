@@ -90,7 +90,7 @@ public class Jtga {
                 
                 /**Pour chaque objet, on verifie si il est sur le chemin du rayon*/
                 for(Figures f : obj){
-                   if( f.intersection(primaire, res)){
+                   if( f.intersection(primaire).exists()){
                        
                        //Si c'est le premier objet, ou si il est devant l'objet le plus proche precedent
                        //On l'enregistre.
@@ -116,7 +116,6 @@ public class Jtga {
                     System.out.println("ce point de quelque chose est sur le chemin de mes yeux \\o/ (" + Mmin +")");
                     System.out.println("il est à " + la + " de l'origine");
                     //Foreach sources
-                Double ret = 0.0;
                 boolean b = true;
                 //Pour chaque lumiere
                     for(Vec3f l : sources){
@@ -129,7 +128,7 @@ public class Jtga {
                         for(Figures f : obj){
                             //Si il y a une intersection, et que celle ci est entre
                             //Mmin et f alors la lumiere n'atteint pas le pixel
-                            if(f.intersection(lumiere, ret) && ret< distance_pixel_lumiere){
+                            if(f.intersection(lumiere).exists() && f.intersection(lumiere).getIntersection()< distance_pixel_lumiere){
                                 b = false;
                             }
                         }

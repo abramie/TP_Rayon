@@ -6,6 +6,7 @@
 package objets;
 
 import Utils.Rayon;
+import Utils.Result;
 import Utils.Vec3f;
 
 /**
@@ -15,17 +16,18 @@ import Utils.Vec3f;
 public class Plan extends Figures{
 
     @Override
-    public boolean intersection(Rayon r, Double resultat) {
+    public Result intersection(Rayon r) {
         Vec3f N = this.getNormal();
         Double lambda = new Double(-(N.dot(r.getA()))-this.d);
         lambda = lambda / N.dot(r.getV());
+        double resultat = 0;
         
         if(lambda >0){
             System.out.println("lambda = " + lambda);
             resultat = lambda;
-            return true;
+            return new Result(resultat, true);
         }
-        return false;
+        return new Result(resultat, false);
     }
     
     private int a,b,c,d;
