@@ -37,6 +37,10 @@ public class Jtga {
         int distance_grille = 10;
         Vec3f O = new Vec3f();
         Rayon primaire;
+        Rayon lumiere;
+        Figures proche;
+        Vec3f Mmin = null;
+        byte blue =0,red=0,green=0;
         // For each pixel...
         for(int y = 0; y < 1024; y++){
             for(int x = 0; x < 1024; x++){
@@ -44,7 +48,7 @@ public class Jtga {
                 
                 // Compute the index of the current pixel in the buffer
                 int index = 3*((y*width)+x);
-                
+                /*
                 // Ensure that the pixel is black
                 buffer.put(index, (byte)0); // blue : take care, blue is the first component !!!
                 buffer.put(index+1, (byte)0); // green
@@ -53,18 +57,79 @@ public class Jtga {
                 // Depending on the x position, select a color... 
                 if (x<width/3) buffer.put(index, (byte)255);
                 else if (x<2*width/3) buffer.put(index+1, (byte)255);
-                else buffer.put(index+2, (byte)255);
+                else buffer.put(index+2, (byte)255);*/
                 
-                //Construire le rayon
-                primaire = new Rayon(O,new Vec3f(O.x-x, O.y-y, O.z-distance_grille));
+                //Construire le rayon entre O et le pixel
+                //le pixel est x,y, et la distance de la grille
+                primaire = new Rayon(O,new Vec3f(O, new Vec3f(x,y,distance_grille)));
                 
                 
                 //Foreach obj
+                /**La distance minimum d'un objet**/
+                Double la =0.0;
+                /**Devient vrai si un objet se trouve dans la diection du rayon*/
+                boolean is = false;
                 
-                //Foreach sources
+                /**res est la distance de l'intersection courrante*/
+                Double res = 0.0;
                 
-                //Sauver les contribs
-                
+                /**Pour chaque objet, on verifie si il est sur le chemin du rayon*/
+                for(Figures f : obj){
+                   if( f.intersection(primaire, res)){
+                       //Si c'est le premier objet, ou si il est devant l'objet le plus proche precedent
+                       //On l'enregistre.
+                       if(is && res < la){
+                           la = res;
+                           proche = f;
+                           
+                       }else{
+                           is = true;
+                           la = res;
+                           proche = f;
+                           
+                       }
+                   }
+                }
+                Mmin = new Vec3f(x,y,la.intValue());
+                //Si y a un objet sur le chemin, sinon sa sert à rien de calculer tous sa
+                if( is ) {
+                    //Foreach sources
+                Double ret = 0.0;
+                boolean b = true;
+                //Pour chaque lumiere
+                    for(Vec3f l : sources){
+                        b = true;
+                        //Rayon du point d'intersection à la lumiere
+                        lumiere = new Rayon(Mmin,new Vec3f(Mmin,l));
+                        //On verifie si un objet oculte la source
+                        for(Figures f : obj){
+                            //Si il y a une intersection, et que celle ci est entre
+                            //Mmin et f alors la lumiere n'atteint pas le pixel
+                            //Y a un calcul à faire pour voir si c'est sur le chamin 
+                            // le ret< l.z est probablement pas bon
+                            if(f.intersection(lumiere, ret) && ret< l.z){
+                                b = false;
+                            }
+                        }
+                        if(b){
+                            //Calculer la contrib de Sj
+                            //Quoi que sa veuille dire
+                            
+                            //J'ai mis des valeurs au pif ici, y a surement un calcul avec de la lumiere et des couleurs.
+                            red += 10;
+                            // proche.couleur(); // un truc comme sa aussi d'ailleurs
+                            blue += 10;
+                            green += 10;
+                        }
+                    }
+
+                    
+                 
+                }
+                //Sauver les contribs pour obtenir la couleur final du pixel
+               buffer.put(index, blue); // blue : take care, blue is the first component !!!
+               buffer.put(index+1, green); // green
+               buffer.put(index+2, red); // red (red is the last component !!!)
                 
             }
         }

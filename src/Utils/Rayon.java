@@ -30,5 +30,7 @@ public class Rayon {
         this.a =a;
         this.v = v;
     }
+
+    
     
 }

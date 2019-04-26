@@ -43,6 +43,13 @@ public class Vec3f
         this.z=a.z+b.z+c.z;
     }
     
+     public Vec3f(final Vec3f a,final Vec3f b)
+    {
+        this.x=a.x-b.x;
+        this.y=a.y-b.y;
+        this.z=a.z-b.z;
+    }
+    
     /**
      * Constructor by copy
      * @param that vector to be copied in current vector
