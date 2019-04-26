@@ -1,4 +1,4 @@
-package jtga;
+package tp_rayon;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
