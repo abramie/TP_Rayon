@@ -25,4 +25,10 @@ public class Rayon {
         return v;
     }
     
+    
+    public Rayon(Vec3f a, Vec3f v){
+        this.a =a;
+        this.v = v;
+    }
+    
 }

@@ -1,5 +1,7 @@
-package jtga;
+package tp_rayon;
 
+import Utils.Rayon;
+import Utils.Vec3f;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -8,8 +10,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import objets.Figures;
 
 /**
  *
@@ -17,6 +22,7 @@ import java.util.logging.Logger;
  */
 public class Jtga {
 
+   
     /**
      * @param args the command line arguments
      */
@@ -26,10 +32,15 @@ public class Jtga {
         short height = 1024;
         
         ByteBuffer buffer = ByteBuffer.allocate(width*height*3);
-        
+        List<Figures> obj = new ArrayList<Figures>();
+        List<Vec3f> sources = new ArrayList<Vec3f>();
+        int distance_grille = 10;
+        Vec3f O = new Vec3f();
+        Rayon primaire;
         // For each pixel...
         for(int y = 0; y < 1024; y++){
             for(int x = 0; x < 1024; x++){
+                
                 
                 // Compute the index of the current pixel in the buffer
                 int index = 3*((y*width)+x);
@@ -43,6 +54,18 @@ public class Jtga {
                 if (x<width/3) buffer.put(index, (byte)255);
                 else if (x<2*width/3) buffer.put(index+1, (byte)255);
                 else buffer.put(index+2, (byte)255);
+                
+                //Construire le rayon
+                primaire = new Rayon(O,new Vec3f(O.x-x, O.y-y, O.z-distance_grille));
+                
+                
+                //Foreach obj
+                
+                //Foreach sources
+                
+                //Sauver les contribs
+                
+                
             }
         }
         
