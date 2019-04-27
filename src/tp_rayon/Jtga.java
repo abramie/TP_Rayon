@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import objets.Figures;
 import objets.Plan;
+import objets.Sphere;
 
 /**
  *
@@ -37,18 +38,22 @@ public class Jtga {
         ByteBuffer buffer = ByteBuffer.allocate(width*height*3);
         /**Liste des objets */
         List<Figures> obj = new ArrayList<Figures>();
-        Plan p1 = new Plan(2, 5, 1, 15);
+        Plan p1 = new Plan(2, 2, 1, 8);
         p1.cMat = new float[]{0,255,0};
-        Plan p2 = new Plan(2, 2, 1, 8);
+        Plan p2 = new Plan(2, 1, 1, 8);
         p2.cMat = new float[]{255,0,0};
-        obj.add(p1);
-        obj.add(p2);
+        
+        Sphere s = new Sphere(new Vec3f(15,20,100), 5);
+        s.cMat = new float[]{0,0,255};
+        //obj.add(p1);
+        //obj.add(p2);
+        obj.add(s);
         
         /**Liste des sources de lumieres*/
         List<Vec3f> sources = new ArrayList<Vec3f>();
-        sources.add(new Vec3f(3, 3, 2));
+        sources.add(new Vec3f(12, 3, 2));
        // sources.add(new Vec3f(25, 9, 8));
-        int distance_grille = 1;
+        float distance_grille = 3;
        
         //Tas de variables pour des trucs
         Vec3f O = new Vec3f();
@@ -134,7 +139,7 @@ public class Jtga {
                             }
                         }
                         if(b){
-                            System.out.println("ce pixel est touché par la lumiere \\o/ (" + x + "," + y +")" + "il appartient à " + proche);
+                            //System.out.println("ce pixel est touché par la lumiere \\o/ (" + x + "," + y +")" + "il appartient à " + proche);
                             //Calculer la contrib de Sj
                             //Quoi que sa veuille dire
                             

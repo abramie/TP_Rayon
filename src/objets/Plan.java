@@ -38,6 +38,8 @@ public class Plan extends Figures{
         this.d = d;
     }
     
+    
+    
     public Vec3f getNormal(){
         return new Vec3f(a,b,c);
     }
