@@ -15,37 +15,50 @@ import Utils.Vec3f;
  */
 public class Plan extends Figures{
 
+    private Vec3f normal;
+    private float distance;
+
     @Override
     public Result intersection(Rayon r) {
-        Vec3f N = this.getNormal();
-        Double lambda = new Double(-(N.dot(r.getA()))-this.d);
+        Vec3f N = this.normal;
+        Float lambda = new Float(-(N.dot(r.getA())))-distance;
         lambda = lambda / N.dot(r.getV());
-        double resultat = 0;
+        float resultat = 0;
         
         if(lambda >0){
-            resultat = lambda;
+            resultat = r.getV().scale(lambda).length();
             return new Result(resultat, true);
         }
         return new Result(resultat, false);
     }
     
-    private int a,b,c,d;
+    /*@Override
+    public Result intersection(Rayon r) {
+        float nv = this.normal.dot(r.getV());
+        Result result = null;
+        float lambda;
+        if (nv!=0){
+            lambda = -this.normal.dot(r.getA())-distance;
+        }
+        else{
+            lambda = Float.MAX_VALUE;
+        }
+        
+        if(lambda >0.05f){
+            return new Result(lambda, true);
+        }
+        return new Result(lambda, false);
+    }*/
     
-    public Plan(int  a, int b, int c, int d){
-        this.a = a;
-        this.b = b;
-        this.c = c;
-        this.d = d;
+    
+    public Plan(Vec3f normal, float distance){
+        this.normal= normal;
+        this.distance = distance;
     }
-    
-    
-    
-    public Vec3f getNormal(){
-        return new Vec3f(a,b,c);
-    }
-    
+
     @Override
-    public String toString(){
-        return this.getNormal().toString();
+    public Vec3f getNormal(Vec3f intersect) {
+        return this.normal.normalize();
     }
+    
 }

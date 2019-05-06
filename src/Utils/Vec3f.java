@@ -284,4 +284,14 @@ public class Vec3f
     public String toString(){
       return "Il s'agit du point : "+ this.x + "," + this.y + "," + this.z;  
     }
+    
+    public Vec3f vectorProduct(Vec3f vec){
+        Vec3f result = new Vec3f();
+        
+        result.x = this.y*vec.z-this.z*vec.y;
+        result.y = this.z*vec.x-this.x*vec.z;
+        result.z = this.x*vec.y-this.y*vec.x;
+        
+        return result;
+    }
 }

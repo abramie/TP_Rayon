@@ -5,8 +5,10 @@
  */
 package objets;
 
+import Utils.Color;
 import Utils.Rayon;
 import Utils.Result;
+import Utils.Vec3f;
 
 /**
  *
@@ -16,6 +18,8 @@ public abstract class Figures {
     
     abstract public Result intersection(Rayon r);
     
-    public float[] cMat = new float[3];
+    public Color cMat;
+    
+    public abstract Vec3f getNormal(Vec3f intersect);
     
 }

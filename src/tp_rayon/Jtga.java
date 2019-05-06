@@ -1,5 +1,6 @@
 package tp_rayon;
 
+import Utils.Color;
 import Utils.Rayon;
 import Utils.Result;
 import Utils.Vec3f;
@@ -32,41 +33,42 @@ public class Jtga {
     public static void main(String[] args) {
         
         //j'ai reduit un peu la taille de la grille
-        short width = 60;
-        short height = 60;
+        short width = 1024;
+        short height = 1024;
         
         ByteBuffer buffer = ByteBuffer.allocate(width*height*3);
         /**Liste des objets */
         List<Figures> obj = new ArrayList<Figures>();
-        Plan p1 = new Plan(2, 2, 1, 8);
-        p1.cMat = new float[]{0,255,0};
-        Plan p2 = new Plan(2, 1, 1, 8);
-        p2.cMat = new float[]{255,0,0};
+        Vec3f normalPlan1 = new Vec3f(0,0,1);
+        Plan p1 = new Plan(normalPlan1, -500);
+        p1.cMat = new Color(0f,1f,0f);
+        Vec3f normalPlan2 = new Vec3f(0f,1f,0f);
+        Plan p2 = new Plan(normalPlan2, -200);
+        p2.cMat = new Color(1f,0f,0f);
+        Vec3f sphereCoords = new Vec3f(0, 0, -1100);
+        Sphere s1 = new Sphere(sphereCoords, 300);
+        s1.cMat = new Color(0f,0f,0.5f);
+        Vec3f sphereCoords2 = new Vec3f(0, 0, -1500);
+        Sphere s2 = new Sphere(sphereCoords2, 400);
+        s2.cMat = new Color(1f,0f,1f);
         
-        Sphere s = new Sphere(new Vec3f(15,20,100), 5);
-        s.cMat = new float[]{0,0,255};
-        //obj.add(p1);
-        //obj.add(p2);
-        obj.add(s);
         
+        obj.add(p1);
+        obj.add(s1);
+        obj.add(s2);
+        //obj.add(s1);
         /**Liste des sources de lumieres*/
         List<Vec3f> sources = new ArrayList<Vec3f>();
-        sources.add(new Vec3f(12, 3, 2));
+        sources.add(new Vec3f(0, 500, 0));
        // sources.add(new Vec3f(25, 9, 8));
-        float distance_grille = 3;
-       
-        //Tas de variables pour des trucs
+        int distance_grille = -1000;
+        
+        
+        
         Vec3f O = new Vec3f();
-        Rayon primaire;
-        Rayon lumiere;
-        Figures proche = null;
-        Vec3f  Mmin = new Vec3f();
-        Result r;
         // For each pixel...
         for(int y = 0; y < height; y++){
             for(int x = 0; x < width; x++){
-                byte blue =0,red=0,green=0;
-                
                 // Compute the index of the current pixel in the buffer
                 int index = 3*((y*width)+x);
                 /*
@@ -82,82 +84,12 @@ public class Jtga {
                 
                 //Construire le rayon entre O et le pixel
                 //le pixel est x,y, et la distance de la grille
-                Vec3f v = new Vec3f(x,y,distance_grille);
-                primaire = new Rayon(O,new Vec3f(O,v ));
-                
-                
-                //Foreach obj
-                /**La distance minimum d'un objet**/
-                Double la =0.0;
-                /**Devient vrai si un objet se trouve dans la diection du rayon*/
-                boolean is = false;
-                
-                /**res est la distance de l'intersection courrante*/
-                Double res = 0.0;
-                
-                /**Pour chaque objet, on verifie si il est sur le chemin du rayon*/
-                for(Figures f : obj){
-                   if( (r = f.intersection(primaire)).exists() ){
-                       res = r.getDistance();
-                       //Si c'est le premier objet, ou si il est devant l'objet le plus proche precedent
-                       //On l'enregistre.
-                       if(is && res < la){
-                           la = res;
-                           proche = f;
-                           
-                           
-                       }else{
-                           is = true;
-                           la = res;
-                           proche = f;
-                           
-                       }
-                   }
-                }
-                //M = A + lambda*v
-                
-                Mmin.setAdd(O,v.scale(la.floatValue()));
-                
-                //Si y a un objet sur le chemin, sinon sa sert à rien de calculer tous sa
-                if( is ) {
-                    
-                    //Foreach sources
-                boolean b = true;
-                //Pour chaque lumiere
-                    for(Vec3f l : sources){
-                        b = true;
-                        //Rayon du point d'intersection à la lumiere
-                        lumiere = new Rayon(Mmin,new Vec3f(Mmin,l));
-                        //On calcule la distance entre le pixel et la source de la lumiere
-                        double distance_pixel_lumiere = Math.sqrt(Math.pow(Mmin.x-l.x, 2)+Math.pow(Mmin.y-l.y, 2)+Math.pow(Mmin.z-l.z, 2));
-                        //On verifie si un objet oculte la source
-                        for(Figures f : obj){
-                            //Si il y a une intersection, et que celle ci est entre
-                            //Mmin et f alors la lumiere n'atteint pas le pixel
-                            if((r = f.intersection(lumiere)).exists() && r.getDistance()< distance_pixel_lumiere){
-                                b = false;
-                            }
-                        }
-                        if(b){
-                            //System.out.println("ce pixel est touché par la lumiere \\o/ (" + x + "," + y +")" + "il appartient à " + proche);
-                            //Calculer la contrib de Sj
-                            //Quoi que sa veuille dire
-                            
-                            //J'ai mis des valeurs au pif ici, y a surement un calcul avec de la lumiere et des couleurs.
-                            red += (byte)proche.cMat[0];
-                            // proche.couleur(); // un truc comme sa aussi d'ailleurs
-                            blue += (byte)proche.cMat[1];
-                            green += (byte)proche.cMat[2];
-                        }
-                    }
-
-                    
-                 
-                }
+                Vec3f v = new Vec3f(x-width/2,y-height/2,distance_grille);
+                Color color = rayCast(O, v, obj, sources);
                 //Sauver les contribs pour obtenir la couleur final du pixel
-               buffer.put(index, blue); // blue : take care, blue is the first component !!!
-               buffer.put(index+1, green); // green
-               buffer.put(index+2, red); // red (red is the last component !!!)
+                buffer.put(index, (byte)(color.r*255)); // blue : take care, blue is the first component !!!
+                buffer.put(index+1, (byte)(color.g*255)); // green
+                buffer.put(index+2, (byte)(color.b*255)); // red (red is the last component !!!)
                 
             }
         }
@@ -175,6 +107,95 @@ public class Jtga {
             
             Logger.getLogger(Jtga.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    private static Color rayCast(Vec3f A, Vec3f v, List<Figures> obj,
+            List<Vec3f> sources){
+        Rayon primaire;
+        Color ambiantLight = new Color(0.1f, 0.1f, 0.1f);
+        Color lightColor = new Color(0.9f, 0.9f, 0.9f);
+        Result r;
+        Figures proche = null;
+        
+        Rayon lumiere;
+        Vec3f  Mmin = new Vec3f();
+        primaire = new Rayon(v,new Vec3f(A,v ));
+                
+                
+        //Foreach obj
+        /**La distance minimum d'un objet**/
+        Double la =0.0;
+        /**Devient vrai si un objet se trouve dans la diection du rayon*/
+        boolean is = false;
+
+        /**res est la distance de l'intersection courrante*/
+        Double res = 0.0;
+
+        /**Pour chaque objet, on verifie si il est sur le chemin du rayon*/
+        for(Figures f : obj){
+            
+           if( (r = f.intersection(primaire)).exists() ){
+               res = r.getDistance();
+               //Si c'est pas le premier objet
+               if(is ){
+                   // ou si il est devant l'objet le plus proche precedent
+                   if(res < la){
+                       //On l'enregistre.
+                        la = res;
+                        proche = f;
+                   }  
+               }else{
+                   //On l'enregistre.
+                   is = true;
+                   la = res;
+                   proche = f;
+
+               }
+           }
+        }
+        if (proche==null){
+            return new Color(0,0,0);
+        }
+        //M = A + lambda*v
+
+        //v le vecteur de l'observateur au pixel
+        Mmin.setAdd(A,v.scale(la.floatValue()));
+
+        //Si y a un objet sur le chemin, sinon sa sert à rien de calculer tous sa
+        
+        Color finalColor = new Color(proche.cMat);
+        finalColor.mult(ambiantLight);
+        //Foreach sources
+        boolean b = true;
+        //Pour chaque lumiere
+        for(Vec3f l : sources){
+            b = true;
+            //Rayon du point d'intersection à la lumiere
+            lumiere = new Rayon(Mmin,new Vec3f(Mmin,l));
+            //On calcule la distance entre le pixel et la source de la lumiere
+            double distance_pixel_lumiere = Math.sqrt(Math.pow(Mmin.x-l.x, 2)+Math.pow(Mmin.y-l.y, 2)+Math.pow(Mmin.z-l.z, 2));
+            //On verifie si un objet oculte la source
+            for(Figures f : obj){
+                //Si il y a une intersection, et que celle ci est entre
+                //Mmin et f alors la lumiere n'atteint pas le pixel
+                if((r = f.intersection(lumiere)).exists() && r.getDistance()< distance_pixel_lumiere && r.getDistance() > 0.05f){
+                    b = false;
+                }
+            }
+            if(b){
+                //System.out.println("ce pixel est touché par la lumiere \\o/ (" + x + "," + y +")" + "il appartient à " + proche);
+                float weight = Math.max(0, proche.getNormal(Mmin).normalize().dot(new Vec3f(Mmin,l).normalize()));
+
+                Color color = new Color(proche.cMat);
+                
+                color.mult(lightColor);
+                color.mult(weight);
+                
+                finalColor.add(color);
+            }
+        }
+        finalColor.ceil(1);
+        return finalColor;
     }
     
     /* save an image in a TGA file with no compression and in true color (24bits/pixel)
