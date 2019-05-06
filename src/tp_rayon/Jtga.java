@@ -32,34 +32,43 @@ public class Jtga {
      */
     public static void main(String[] args) {
         
-        //j'ai reduit un peu la taille de la grille
+        //j'ai reduit un peu lambda_minimum taille de lambda_minimum grille
         short width = 1024;
         short height = 1024;
         
         ByteBuffer buffer = ByteBuffer.allocate(width*height*3);
         /**Liste des objets */
+        //Les plans veulent vraiment pas marcher
         List<Figures> obj = new ArrayList<Figures>();
         Vec3f normalPlan1 = new Vec3f(0,0,1);
-        Plan p1 = new Plan(normalPlan1, -500);
+        Plan p1 = new Plan(normalPlan1, 2500);
         p1.cMat = new Color(0f,1f,0f);
         Vec3f normalPlan2 = new Vec3f(0f,1f,0f);
-        Plan p2 = new Plan(normalPlan2, -200);
+        Plan p2 = new Plan(normalPlan2, 1400);
         p2.cMat = new Color(1f,0f,0f);
-        Vec3f sphereCoords = new Vec3f(0, 0, -1100);
+        
+        Vec3f sphereCoords = new Vec3f(0, 0, -2000);
         Sphere s1 = new Sphere(sphereCoords, 300);
         s1.cMat = new Color(0f,0f,0.5f);
-        Vec3f sphereCoords2 = new Vec3f(0, 0, -1500);
-        Sphere s2 = new Sphere(sphereCoords2, 400);
+        
+        Vec3f sphereCoords2 = new Vec3f(400, 0, -2000);
+        Sphere s2 = new Sphere(sphereCoords2, 200);
         s2.cMat = new Color(1f,0f,1f);
         
+        /*Rayon testray = new Rayon(new Vec3f(0,0,0), new Vec3f(0,0,-6));
+        Result tmp = s1.intersection(testray);
+        System.out.println(tmp.exists());
+        System.out.println(tmp.getDistance());
+        return;*/
         
         obj.add(p1);
         obj.add(s1);
         obj.add(s2);
-        //obj.add(s1);
+        //obj.add(p2);
+        
         /**Liste des sources de lumieres*/
         List<Vec3f> sources = new ArrayList<Vec3f>();
-        sources.add(new Vec3f(0, 500, 0));
+        sources.add(new Vec3f(500, 0, -1000));
        // sources.add(new Vec3f(25, 9, 8));
         int distance_grille = -1000;
         
@@ -83,10 +92,10 @@ public class Jtga {
                 else buffer.put(index+2, (byte)255);*/
                 
                 //Construire le rayon entre O et le pixel
-                //le pixel est x,y, et la distance de la grille
+                //le pixel est x,y, et lambda_minimum distance de lambda_minimum grille
                 Vec3f v = new Vec3f(x-width/2,y-height/2,distance_grille);
                 Color color = rayCast(O, v, obj, sources);
-                //Sauver les contribs pour obtenir la couleur final du pixel
+                //Sauver les contribs pour obtenir lambda_minimum couleur final du pixel
                 buffer.put(index, (byte)(color.r*255)); // blue : take care, blue is the first component !!!
                 buffer.put(index+1, (byte)(color.g*255)); // green
                 buffer.put(index+2, (byte)(color.b*255)); // red (red is the last component !!!)
@@ -109,27 +118,26 @@ public class Jtga {
         }
     }
     
-    private static Color rayCast(Vec3f A, Vec3f v, List<Figures> obj,
+    private static Color rayCast(Vec3f origine_rayon, Vec3f direction_rayon, List<Figures> obj,
             List<Vec3f> sources){
         Rayon primaire;
-        Color ambiantLight = new Color(0.1f, 0.1f, 0.1f);
-        Color lightColor = new Color(0.9f, 0.9f, 0.9f);
+        Color ambiantLight = new Color(0.3f, 0.3f, 0.3f);
+        Color lightColor = new Color(1.0f, 1.0f, 1.0f);
         Result r;
         Figures proche = null;
         
         Rayon lumiere;
         Vec3f  Mmin = new Vec3f();
-        primaire = new Rayon(v,new Vec3f(A,v ));
-                
-                
+        primaire = new Rayon(origine_rayon,direction_rayon);
+        
         //Foreach obj
         /**La distance minimum d'un objet**/
-        Double la =0.0;
+        double lambda_minimum =0.0;
         /**Devient vrai si un objet se trouve dans la diection du rayon*/
         boolean is = false;
 
         /**res est la distance de l'intersection courrante*/
-        Double res = 0.0;
+        double res = 0.0;
 
         /**Pour chaque objet, on verifie si il est sur le chemin du rayon*/
         for(Figures f : obj){
@@ -138,16 +146,16 @@ public class Jtga {
                res = r.getDistance();
                //Si c'est pas le premier objet
                if(is ){
-                   // ou si il est devant l'objet le plus proche precedent
-                   if(res < la){
-                       //On l'enregistre.
-                        la = res;
+                   // ou si il est devant source_actuelle'objet le plus proche precedent
+                   if(res < lambda_minimum){
+                       //On source_actuelle'enregistre.
+                        lambda_minimum = res;
                         proche = f;
                    }  
                }else{
-                   //On l'enregistre.
+                   //On source_actuelle'enregistre.
                    is = true;
-                   la = res;
+                   lambda_minimum = res;
                    proche = f;
 
                }
@@ -156,45 +164,55 @@ public class Jtga {
         if (proche==null){
             return new Color(0,0,0);
         }
-        //M = A + lambda*v
-
-        //v le vecteur de l'observateur au pixel
-        Mmin.setAdd(A,v.scale(la.floatValue()));
-
         //Si y a un objet sur le chemin, sinon sa sert à rien de calculer tous sa
         
+        //M = origine_rayon + lambda*direction_rayon
+
+        //v le vecteur de source_actuelle'observateur au pixel
+        
+        Mmin.setAdd(origine_rayon,direction_rayon.scale((float)lambda_minimum));
+
+        
         Color finalColor = new Color(proche.cMat);
-        finalColor.mult(ambiantLight);
-        //Foreach sources
-        boolean b = true;
-        //Pour chaque lumiere
-        for(Vec3f l : sources){
-            b = true;
-            //Rayon du point d'intersection à la lumiere
-            lumiere = new Rayon(Mmin,new Vec3f(Mmin,l));
-            //On calcule la distance entre le pixel et la source de la lumiere
-            double distance_pixel_lumiere = Math.sqrt(Math.pow(Mmin.x-l.x, 2)+Math.pow(Mmin.y-l.y, 2)+Math.pow(Mmin.z-l.z, 2));
-            //On verifie si un objet oculte la source
-            for(Figures f : obj){
+        finalColor.mult(ambiantLight); //On met de source_actuelle'ambiant, du coup à source_actuelle'objet le plus proche de source_actuelle'observateur
+        
+        
+        boolean b_NoIntersection = true;
+        //Pour chaque sources lumineuse
+        for(Vec3f source_actuelle : sources){
+            b_NoIntersection = true;
+            //Rayon du point d'intersection à lambda_minimum lumiere
+            lumiere = new Rayon(Mmin,new Vec3f(Mmin,source_actuelle));
+            //On calcule lambda_minimum distance entre le pixel et lambda_minimum source de lambda_minimum lumiere
+            //double distance_pixel_lumiere = Math.sqrt(Math.pow(Mmin.x-source_actuelle.x, 2)+Math.pow(Mmin.y-source_actuelle.y, 2)+Math.pow(Mmin.z-source_actuelle.z, 2));
+            //On verifie si un objet oculte lambda_minimum source
+            for(Figures fig_intercepteur : obj){
                 //Si il y a une intersection, et que celle ci est entre
-                //Mmin et f alors la lumiere n'atteint pas le pixel
-                if((r = f.intersection(lumiere)).exists() && r.getDistance()< distance_pixel_lumiere && r.getDistance() > 0.05f){
-                    b = false;
+                //Mmin et fig_intercepteur alors lambda_minimum lumiere n'atteint pas le pixel
+                if((r = fig_intercepteur.intersection(lumiere)).exists() && r.getDistance()< 1/*distance_pixel_lumiere*/ && r.getDistance() > 0.05f){
+                    b_NoIntersection = false;
                 }
             }
-            if(b){
-                //System.out.println("ce pixel est touché par la lumiere \\o/ (" + x + "," + y +")" + "il appartient à " + proche);
-                float weight = Math.max(0, proche.getNormal(Mmin).normalize().dot(new Vec3f(Mmin,l).normalize()));
-
+            if(b_NoIntersection){
+                
+                Vec3f aaa = proche.getNormal(Mmin).normalize();
+                Vec3f bbb = new Vec3f(Mmin,source_actuelle).normalize();
+              
+                float weight = aaa.dot(bbb);
+                //System.out.println(Mmin);
+                weight = weight < 0 ? 0 : weight;
+                //if(weight >0)System.out.println(weight);
+                //float weight = Math.max(0, proche.getNormal(Mmin).normalize().dot(new Vec3f(Mmin,source_actuelle).normalize())); //l'angle diminue source_actuelle'intensité de lambda_minimum lumiere
+                //System.out.println(weight);
+                
                 Color color = new Color(proche.cMat);
                 
-                color.mult(lightColor);
-                color.mult(weight);
-                
-                finalColor.add(color);
+                color.mult(lightColor); //On applique lambda_minimum lumiere
+                color.mult(weight); //et lambda_minimum reduction d'angle
+                finalColor.add(color); //On ajoute à source_actuelle'ambiant
             }
         }
-        finalColor.ceil(1);
+        finalColor.ceil(1); //On plafonne à 1 lambda_minimum lumiere.
         return finalColor;
     }
     

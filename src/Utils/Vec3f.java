@@ -45,9 +45,9 @@ public class Vec3f
     
      public Vec3f(final Vec3f a,final Vec3f b)
     {
-        this.x=a.x-b.x;
-        this.y=a.y-b.y;
-        this.z=a.z-b.z;
+        this.x=b.x-a.x;
+        this.y=b.y-a.y;
+        this.z=b.z-a.z;
     }
     
     /**

@@ -18,27 +18,32 @@ public class Plan extends Figures{
     private Vec3f normal;
     private float distance;
 
-    @Override
+   @Override //Code jérmy
     public Result intersection(Rayon r) {
-        Vec3f N = this.normal;
-        Float lambda = new Float(-(N.dot(r.getA())))-distance;
-        lambda = lambda / N.dot(r.getV());
-        float resultat = 0;
+        Float NA = this.normal.dot(r.getA());
+        Float NV = this.normal.dot(r.getV());
+        Float resultat = 0.0f;
+        Float lambda = Float.MAX_VALUE;;
+        if(NV !=0){
+            lambda = ((-NA)-distance) / NV;
+            resultat = lambda;
+            
+        }
         
-        if(lambda >0){
-            resultat = r.getV().scale(lambda).length();
+        if(lambda > 0.05f){
             return new Result(resultat, true);
         }
         return new Result(resultat, false);
     }
     
-    /*@Override
+    /*@Override //Code benjamin
     public Result intersection(Rayon r) {
         float nv = this.normal.dot(r.getV());
-        Result result = null;
         float lambda;
+        
         if (nv!=0){
-            lambda = -this.normal.dot(r.getA())-distance;
+            lambda = -(this.normal.dot(r.getA()))-distance;
+            lambda = lambda /nv;
         }
         else{
             lambda = Float.MAX_VALUE;
